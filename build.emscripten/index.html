@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>EM Test</title>
+    <script type="text/javascript" src="client.js"></script>
+</head>
+<body>
+Check browser console.
+
+<script>
+
+function data_cb(data, len) {
+  var datajs = Module.UTF8ToString(data, len)
+  console.log("Received from C: ", datajs);
+}
+
+function executeAsync(func) {
+    setTimeout(func, 0);
+}
+
+function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+   }
+
+console.log("Calling code from Pico");
+  Module.onRuntimeInitialized = async () => {
+    const api = {
+      version: Module.cwrap("version", "number", []),
+      config: Module.cwrap("default_config", "number", ["string"]),
+      open: Module.cwrap("open_session", "number", ["number"], {async: true}),
+      start_tasks: Module.cwrap("start_tasks", "number", ["number"]),
+      sleep: Module.cwrap("test_sleep", "", "number", {async: true}),
+      declare_ke: Module.cwrap("declare_ke", "number", ["number","string"],  {async: true}),
+      pub: Module.cwrap("pub", "number", ["number","number","string"],  {async: true}),
+      sub: Module.cwrap("sub", "number", ["number","number","number"],  {async: true}),
+      spin: Module.cwrap("spin", "", ["number"], {async: true}),
+      close: Module.cwrap("close_session", "", ["number"], {async: true}),
+    };
+
+
+    var config =  api.config("ws/127.0.0.1:7887");
+    console.log("Creating configuration, result: " +  config);
+    var session = await api.open(config);
+    console.log("Creating session, result: " +  session);
+    console.log("starting tasks: ", api.start_tasks(session));
+
+
+    var ke = await api.declare_ke(session,"demo/example/js");
+    console.log("declared ke: ", ke);
+
+
+    // executeAsync(async function () {
+    //   var c = 0;
+    //   while (true) {
+    //   var pub_res = await api.pub(session, ke, `Hello for WASM! [${c}]`);
+    //   console.log("result of pub on zenoh: ", pub_res);
+    //   await sleep(1000);
+    //   c++;
+    //   }
+    // });
+
+    // var piter = await Module.addFunction(data_cb, 'v');
+    // var piter = await Module.addFunction(function (data, len) {
+    //   var data = Module.UTF8ToString(data, len);
+    //   console.log("called from C - ", data);
+    // }, 'vii');
+
+
+      // api.call_js_function(data_cb);
+
+  var sub_ke = await api.declare_ke(session,"demo/example/zenoh-rs-pub");
+  console.log("declared ke: ", sub_ke);
+
+  var piter = Module.registerJSCallback("", data_cb); //This will be hidden somehow
+  var sub_res = await api.sub(session, sub_ke, piter);
+  console.log("sub res: ", sub_res);
+
+
+  // executeAsync(async function () {
+  //   while (true) {
+  //       await api.spin(session);
+  //     }
+  //   });
+
+  // console.log("sleep before closing the session");
+  // await sleep(1000); // 1s
+
+  // console.log("closing the session");
+  // await api.close(session);
+
+  // console.log("session is closed");
+
+  };
+
+</script>
+
+</body>
+</html>
