@@ -1,2 +1,4 @@
 build/
 *.wasm
+client.js
+client.worker.js
