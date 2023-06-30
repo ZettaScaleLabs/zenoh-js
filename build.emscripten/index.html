@@ -39,7 +39,7 @@ console.log("Calling code from Pico");
     };
 
 
-    var config =  api.config("ws/127.0.0.1:7887#tout=10000");
+    var config =  api.config("ws/0.0.0.0:8501#tout=10000");
     console.log("Creating configuration, result: " +  config);
     var session = await api.open(config);
     console.log("Creating session, result: " +  session);
