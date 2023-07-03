@@ -1,0 +1,24 @@
+version: "3.2"
+
+services:
+
+  zenoh-router:
+    image: eclipse/zenoh:0.7.2-rc
+    environment:
+      - RUST_LOG=zenoh=info
+    volumes:
+      - ./zenoh.json:/zenoh.json5
+    ports:
+      - 7447:7447
+      - 7887:7887
+    command: -c /zenoh.json5
+  
+  web:
+    image: nginx:alpine
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./build.emscripten:/app/static
+    ports:
+      - 8080:8080
+    depends_on:
+      - zenoh-router

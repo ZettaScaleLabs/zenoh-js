@@ -1,0 +1,12 @@
+{
+    "listen": {
+    "endpoints": [
+      "tcp/0.0.0.0:7447",
+      "ws/0.0.0.0:7887"
+    ]
+  },
+  "timestamping": {
+    "enabled": { "router": false, "peer": false, "client": false },
+    "drop_future_timestamp": false
+  }
+}
