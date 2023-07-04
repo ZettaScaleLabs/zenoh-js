@@ -1,4 +1,4 @@
 [submodule "zenoh-pico"]
 	path = zenoh-pico
 	url = https://github.com/eclipse-zenoh/zenoh-pico
-	branch = 0.7.2-rc
+	branch = release-0.7.2-rc
