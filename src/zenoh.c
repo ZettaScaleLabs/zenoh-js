@@ -98,10 +98,12 @@ void wrapping_sub_callback(const z_sample_t *sample, void *ctx) {
     char* data = NULL;
     data = (char*) z_malloc((sample->payload.len+1)*sizeof(char));
     memcpy(data, sample->payload.start, sample->payload.len);
-    // data[sample->payload.len] = '\0';
+    data[sample->payload.len] = '\0';
+    printf("[wrapping_sub_callback] [%p] Data: %s\n", data, data);
     call_js_callback(id, data, sample->payload.len);
+    // If call_js_callback proxy to JS becomes async then the free has to be done 
+    // in call_js_callback 
     z_free(data);
-
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -119,6 +121,11 @@ void* sub(z_owned_session_t *s, z_owned_keyexpr_t *ke, int js_callback) {
 
 }
 
+
+EMSCRIPTEN_KEEPALIVE 
+void z_wasm_free(void *ptr) {
+    z_free(ptr);
+}
 
 void* call_js_function(void* js_callback_id) {
     int js_callback = (int)js_callback_id;

@@ -11,8 +11,9 @@ Check browser console.
 <script>
 
 function data_cb(data, len) {
-  var datajs = Module.UTF8ToString(data, len)
-  console.log("Received from C: ", datajs);
+  var datajs = Module.UTF8ToString(data, len);
+  console.log("Received from C [0x" + data.toString(16) + "]: " + datajs);
+
 }
 
 function executeAsync(func) {
@@ -36,6 +37,7 @@ console.log("Calling code from Pico");
       sub: Module.cwrap("sub", "number", ["number","number","number"],  {async: true}),
       spin: Module.cwrap("spin", "", ["number"], {async: true}),
       close: Module.cwrap("close_session", "", ["number"], {async: true}),
+      z_free: Module.cwrap("z_wasm_free", "", ["number"], {async: true})
     };
 
 
