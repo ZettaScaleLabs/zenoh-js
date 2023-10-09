@@ -27,6 +27,28 @@ make all
 It will generate : `client.wasm`, `client.worker.js` and `client.js` inside the `build.emscripten` folder.
 Then the `index.html` file contains some examples of the APIs.
 
+
+## How to build in docker
+
+First let's generate the docker image
+
+```
+docker build . -f Dockerfile -t zenohjs:build
+```
+
+Then let's run the docker image and build:
+
+```
+docker run -v $(pwd):/src/zenoh-js -it zenohjs:build
+mkdir build
+cd build
+emcmake cmake ..
+make all
+```
+
+
+
+
 ## How to run
 
 ```
