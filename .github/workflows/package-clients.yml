@@ -51,33 +51,3 @@ jobs:
         run: |
           npm install
           npx release-it
-
-  notify-ok: 
-    name: Success Notification
-    runs-on: ["self-hosted", "ubuntu-22.04"]
-    needs: [publish-js-client]
-    steps:
-      - name: Success Notification
-        uses: tsickert/discord-webhook@v5.4.0
-        with:
-            webhook-url: ${{ secrets.ZETTA_DISCORD_ALERT_HOOK }}
-            content: "New Zenoh JS Client available: ${{inputs.version}}"
-
-  notif-ko:
-    name: Fail Notification
-    runs-on: ["self-hosted", "ubuntu-22.04"]
-    needs: [publish-js-client]
-    if: ${{ always() && contains(needs.*.result, 'failure') }}
-    steps:
-      - name: Get Current Job Log URL
-        uses: Tiryoh/gha-jobid-action@v0
-        id: jobs
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          job_name: ${{ github.job }}
-
-      - name: notify-ko
-        uses: tsickert/discord-webhook@v5.4.0
-        with:
-          webhook-url: ${{ secrets.ZETTA_DISCORD_ALERT_HOOK }}
-          content: "Packaging Zenoh JS client ${{inputs.version}} failed: ${{ steps.jobs.outputs.html_url }}"
