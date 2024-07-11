@@ -20,7 +20,7 @@ jobs:
             DEBIAN_FRONTEND: noninteractive
         run: |
           apt update
-          apt install -y git unzip build-essential jq protobuf-compiler zip
+          apt install -y git unzip jq zip
 
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -41,12 +41,6 @@ jobs:
           CLIENT_VERSION: ${{inputs.version}}
         run: |
           echo $(cat package.json | jq  --arg version "$CLIENT_VERSION" '. + {version: $version}')  > package.json
-
-      - name: Install protoc-gen-js
-        run: npm install -g protoc-gen-js protoc-gen-grpc-web
- 
-      - name: build
-        run: make web
 
       - name: Publish
         id: publish
