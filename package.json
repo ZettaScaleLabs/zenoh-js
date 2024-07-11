@@ -1,0 +1,21 @@
+{
+    "name": "@ZettaScaleLabs/zenoh-js",
+    "version": "0.0.1",
+    "description": "Zenoh JS API - based on REST API",
+    "main": "./src/zenoh.js",
+    "scripts": {
+        "release": "npx release-it"
+    },
+    "author": "ZettaScale PaaS team (paas@zettascale.tech)",
+    "license": "Apache-2.0, EPL-2.0",
+    "dependencies": {
+        "bytebuffer": "^5.0.1"
+    },
+    "devDependencies": {
+        "release-it": "^17.1.1"
+    },
+    "publishConfig": {
+        "access": "restricted",
+        "registry": "https://npm.pkg.github.com"
+    }
+}
