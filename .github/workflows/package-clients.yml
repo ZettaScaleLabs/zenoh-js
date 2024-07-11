@@ -1,0 +1,89 @@
+name: Package Clients
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Client version'
+        required: true
+        default: 'latest'
+jobs:
+
+  publish-js-client:
+    runs-on: ["self-hosted", "ubuntu-22.04"]
+    container:
+        image: ubuntu:latest
+        options: --rm
+    steps:
+
+      - name: Install dependencies
+        env:
+            DEBIAN_FRONTEND: noninteractive
+        run: |
+          apt update
+          apt install -y git unzip build-essential jq protobuf-compiler zip
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: git config
+        run: |
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com/
+
+      - name: Set Version
+        env: 
+          CLIENT_VERSION: ${{inputs.version}}
+        run: |
+          echo $(cat package.json | jq  --arg version "$CLIENT_VERSION" '. + {version: $version}')  > package.json
+
+      - name: Install protoc-gen-js
+        run: npm install -g protoc-gen-js protoc-gen-grpc-web
+ 
+      - name: build
+        run: make web
+
+      - name: Publish
+        id: publish
+        shell: bash
+        env:
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
+          npm install
+          npx release-it
+
+  notify-ok: 
+    name: Success Notification
+    runs-on: ["self-hosted", "ubuntu-22.04"]
+    needs: [publish-js-client]
+    steps:
+      - name: Success Notification
+        uses: tsickert/discord-webhook@v5.4.0
+        with:
+            webhook-url: ${{ secrets.ZETTA_DISCORD_ALERT_HOOK }}
+            content: "New Zenoh JS Client available: ${{inputs.version}}"
+
+  notif-ko:
+    name: Fail Notification
+    runs-on: ["self-hosted", "ubuntu-22.04"]
+    needs: [publish-js-client]
+    if: ${{ always() && contains(needs.*.result, 'failure') }}
+    steps:
+      - name: Get Current Job Log URL
+        uses: Tiryoh/gha-jobid-action@v0
+        id: jobs
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          job_name: ${{ github.job }}
+
+      - name: notify-ko
+        uses: tsickert/discord-webhook@v5.4.0
+        with:
+          webhook-url: ${{ secrets.ZETTA_DISCORD_ALERT_HOOK }}
+          content: "Packaging Zenoh JS client ${{inputs.version}} failed: ${{ steps.jobs.outputs.html_url }}"

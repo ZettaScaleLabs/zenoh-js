@@ -1,0 +1,12 @@
+{
+    "github": {
+        "release": false
+    },
+    "increment": false,
+    "git": {
+        "requireCleanWorkingDir": false,
+        "commit": false,
+        "tag": false,
+        "push": false
+    }
+}

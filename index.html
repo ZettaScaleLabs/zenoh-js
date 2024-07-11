@@ -1,0 +1,87 @@
+<html>
+
+<head>
+    <script src="./src/zenoh.js"></script>
+</head>
+
+<body>
+    <h1>Zenoh JS - Examples</h1>
+    <div>
+        <input id="rest_api" type="text" required="" value="http://127.0.0.1:8000/">
+        <button onclick="reloadPage(document.getElementById('rest_api').value);">Connect</button>
+    </div>
+    <div>
+        <input id="ke" type="text" required="" value="Key Expression">
+        <input id="value" type="text" required="" value="Value">
+        <button onclick="publish()">Put</button>
+    </div>
+    <div>
+        <input id="ke_sub" type="text" required="" value="Key Expression"> <button
+            onclick="subscribe()">Subscribe</button>
+    </div>
+    <div>
+        <input id="ke_query" type="text" required="" value="Key Expression"> <button onclick="query()">Query</button>
+    </div>
+    <div style="overflow:auto; height:200px; border:1px solid black;" id="logs"></div>
+</body>
+<script>
+    const rest_api = document.getElementById("rest_api").value;
+    const session = new Zenoh(rest_api)
+
+    function publish() {
+        const ke = document.getElementById("ke").value;
+        const value = document.getElementById("value").value;
+        session.put(ke, value)
+    }
+
+    function subscribe() {
+        const ke = document.getElementById("ke_sub").value;
+        session.subscribe(ke, onData)
+    }
+
+    function query() {
+        const ke = document.getElementById("ke_query").value;
+        session.get(ke, onGetData, null)
+    }
+
+
+    function onData(sample) {
+        const data = sample.data;
+        const zsample = JSON.parse(data);
+        console.log(zsample)
+
+        let value = zsample.value
+        if (zsample.encoding == 'application/octet-stream')
+            value = atob(value)
+
+
+        let elem = document.getElementById("logs");
+        elem.innerHTML += "PUT [" + zsample.key + ", " + zsample.encoding + ", " + zsample.time + "] - " + value + "<br>";
+        // Auto-scroll to the bottom
+        elem.scrollTop = elem.scrollHeight;
+    }
+
+    function onGetData(samples) {
+        const zsamples = JSON.parse(samples);
+        console.log(zsamples)
+
+        zsamples.forEach((sample) => {
+            let value = sample.value
+            if (sample.encoding == 'application/octet-stream')
+                value = atob(value)
+
+
+            let elem = document.getElementById("logs");
+            elem.innerHTML += "GET [" + sample.key + ", " + sample.encoding + ", " + sample.time + "] - " + value + "<br>";
+            // Auto-scroll to the bottom
+            elem.scrollTop = elem.scrollHeight;
+        })
+
+    }
+
+    function reloadPage(rest) {
+        window.location.search = 'rest=' + rest;
+    }
+</script>
+
+</html>

@@ -6,57 +6,18 @@
 :warning: **This software is still in alpha status and should _not_ be used in production. Breaking changes are likely to happen and the API is not yet stable.**
 :warning: **The documentation is still scarce. Do not hesitate to contact us on Discord.**
 
-This repository contains some very basic JS bindings for Zenoh, built on top of Zenoh-Pico on emscripten
+This repository contains some very basic JS bindings for Zenoh, built on top of Zenoh REST API
 
 ## Requisites
 
-- Emscripten
-- Cmake
+- JS
 
-## How to build
-
-```
-git submodule update --init --recursive
-git submodule update --recursive --remote
-mkdir build
-cd build
-emcmake cmake ..
-make all
-```
-
-It will generate : `client.wasm`, `client.worker.js` and `client.js` inside the `build.emscripten` folder.
-Then the `index.html` file contains some examples of the APIs.
-
-
-## How to build in docker
-
-First let's generate the docker image
+## How to install
 
 ```
-docker build . -f Dockerfile -t zenohjs:build
+npm install "@ZettaScaleLabs/zenoh-js"
 ```
 
-Then let's run the docker image and build:
+## How to use
 
-```
-docker run -v $(pwd):/src/zenoh-js -it zenohjs:build
-mkdir build
-cd build
-emcmake cmake ..
-make all
-```
-
-
-
-
-## How to run
-
-```
-docker compose up
-
-```
-
-and open your browser to [localhost:8080](http://localhost:8080)
-
-In the developer console you should see some log messages on the status of the connection to zenoh.
-If you start a publisher to `demo/example/zenoh-rs-pub` you will see the data received by the JS being printed in the log.
+See [index.html](./index.html) 
