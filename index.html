@@ -25,6 +25,14 @@
     <div style="overflow:auto; height:200px; border:1px solid black;" id="logs"></div>
 </body>
 <script>
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const restParam = urlParams.get('rest');
+    if (restParam != null && restParam.length > 0) {
+        console.log("Set REST API from URL params: " + restParam);
+        document.getElementById("rest_api").value = restParam;
+    }
+
     const rest_api = document.getElementById("rest_api").value;
     const session = new Zenoh(rest_api)
 
